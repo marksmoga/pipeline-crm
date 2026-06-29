@@ -1,0 +1,316 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--text-primary);background:transparent}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:1rem 0 0.75rem;flex-wrap:wrap;gap:8px}
+.top-bar h1{font-size:18px;font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+.kpi{background:var(--surface-1);border-radius:var(--radius);padding:0.75rem 1rem}
+.kpi .label{font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.kpi .value{font-size:20px;font-weight:500}
+.kpi .value.accent{color:var(--text-accent)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0.75rem}
+.filters select,.filters input{height:32px;font-size:13px;padding:0 8px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--surface-2);color:var(--text-primary);outline:none}
+.filters input{width:180px}
+.filters select:focus,.filters input:focus{border-color:var(--border-accent)}
+.btn-add{height:32px;padding:0 14px;font-size:13px;background:var(--fill-accent);color:var(--on-accent);border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:6px;margin-left:auto}
+.btn-add:hover{background:var(--fill-accent-hover)}
+.table-wrap{overflow-x:auto;border:0.5px solid var(--border);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+thead th{background:var(--surface-1);padding:8px 10px;text-align:left;font-weight:500;color:var(--text-secondary);border-bottom:0.5px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tbody tr{border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface-1)}
+tbody td{padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.stage-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.s6{background:#E6F1FB;color:#185FA5}.s7{background:#EAF3DE;color:#3B6D11}.s5{background:#FAEEDA;color:#854F0B}.s4{background:#FAECE7;color:#993C1D}
+.pct{font-size:12px;color:var(--text-muted)}
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100;display:flex;justify-content:flex-end}
+.panel{width:520px;max-width:100vw;background:var(--surface-2);height:100%;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.panel-title{font-size:16px;font-weight:500;line-height:1.3}
+.panel-sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+.btn-close{background:none;border:0.5px solid var(--border);border-radius:var(--radius);padding:4px 8px;cursor:pointer;color:var(--text-secondary);font-size:13px;flex-shrink:0}
+.btn-close:hover{background:var(--surface-1)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.detail-field{display:flex;flex-direction:column;gap:3px}
+.detail-field label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em}
+.detail-field span{font-size:13px;font-weight:500}
+.acciones{background:var(--surface-1);border-radius:var(--radius);padding:0.75rem;font-size:12px;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto}
+.section-label{font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-field label{font-size:12px;color:var(--text-secondary)}
+.form-field input,.form-field select,.form-field textarea{font-size:13px;padding:6px 8px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--surface-2);color:var(--text-primary);outline:none}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--border-accent)}
+.form-field.full{grid-column:1/-1}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:0.5rem}
+.btn-save{height:32px;padding:0 16px;font-size:13px;background:var(--fill-accent);color:var(--on-accent);border:none;border-radius:var(--radius);cursor:pointer}
+.btn-save:hover{background:var(--fill-accent-hover)}
+.btn-del{height:32px;padding:0 12px;font-size:13px;background:none;border:0.5px solid var(--border-danger);color:var(--text-danger);border-radius:var(--radius);cursor:pointer}
+.btn-cancel{height:32px;padding:0 12px;font-size:13px;background:none;border:0.5px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--text-secondary)}
+.empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:13px}
+</style>
+
+<h2 class="sr-only">Pipeline CRM — gestión de oportunidades de venta</h2>
+<div class="top-bar">
+  <h1>Pipeline FY27</h1>
+  <button class="btn-add" onclick="openNew()"><i class="ti ti-plus" aria-hidden="true"></i> Nueva oportunidad</button>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="filters">
+  <input type="text" id="fSearch" placeholder="Buscar cliente u oportunidad..." oninput="render()">
+  <select id="fStage" onchange="render()">
+    <option value="">Todos los stages</option>
+    <option value="7">Stage 7 — Ganada</option>
+    <option value="6">Stage 6 — Avanzada</option>
+    <option value="5">Stage 5 — Propuesta</option>
+    <option value="4">Stage 4 — Cualificada</option>
+  </select>
+  <select id="fOwner" onchange="render()">
+    <option value="">Todos los owners</option>
+  </select>
+  <select id="fWork" onchange="render()">
+    <option value="">Todos los workstreams</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:140px">Cliente</th>
+        <th style="width:180px">Oportunidad</th>
+        <th style="width:100px">Workstream</th>
+        <th style="width:90px">Stage</th>
+        <th style="width:90px">Booking</th>
+        <th style="width:90px">NS FY27</th>
+        <th style="width:110px">Sales owner</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div id="panel" style="display:none"></div>
+
+<script>
+const STORAGE_KEY = 'pipeline_crm_v1';
+
+const SEED = [
+  {id:1,cliente:'Allianz',geo:'MAD',area:'FS',workstream:'Other - PP/ESG',opp:'App de Demanda IT',stage:7,pct:0.99,booking:106000,nsFY26:31217.76,nsFY27:73022.22,sales:'David Matons',presales:'Francisco Salas',sponsor:'',acciones:'20260430 Les llama cliente para decir que adjudicatarios\n20260423 Me dice Matons que pintaba que eramos adjudicatarios\n20260409 ACCIÓN: Esperar feedback de comité de hoy\n20260323 Propuesta entregada\n20260310 Se entrega el 20/3'},
+  {id:2,cliente:'BANCO PERÚ',geo:'MAD',area:'FS',workstream:'Other - PP/ESG',opp:'Modernización aplicación MDR',stage:7,pct:1,booking:121938,nsFY26:57889.76,nsFY27:64048.24,sales:'David Matons',presales:'Francisco Salas',sponsor:'',acciones:'20260409 Confirmado firmado\n20260325 Ya está firmado, falta dar de alta Jira\n20260211 Pdte. cerrar contrato'},
+  {id:3,cliente:'Banco Santander',geo:'MAD',area:'FS',workstream:'Other - PP/ESG',opp:'Perfil PP 70€/h',stage:6,pct:0.99,booking:53200,nsFY26:19600,nsFY27:33600,sales:'David Matons',presales:'Francisco Salas',sponsor:'Gonzalo Gil',acciones:'20260512 Nos dice el cliente que sí lo va a querer'},
+  {id:4,cliente:'CREAMNN',geo:'MAD',area:'CC',workstream:'Other - PP/ESG',opp:'PP para control de riesgos',stage:6,pct:0.99,booking:129600,nsFY26:57296.84,nsFY27:72303.16,sales:'David Matons',presales:'Francisco Salas',sponsor:'Gonzalo Gil',acciones:'20260409 ACCIÓN: Que Gonzalo les invite a OneTech\n20260312 Propuesta entregada, se entregaron 145k'},
+  {id:5,cliente:'Reale',geo:'MAD',area:'FS',workstream:'CRM',opp:'Ampliación 2026 Oct-Dic',stage:7,pct:1,booking:19998,nsFY26:0,nsFY27:19998,sales:'David Matons',presales:'Ana Frias',sponsor:'',acciones:'20260211 Ana F confirma firma la semana pasada\n20260112 David confirma que se ha ganado'},
+  {id:6,cliente:'INTECSA',geo:'MAD',area:'CC',workstream:'ERP - F&O',opp:'F&O Implementación Projects F1 y F2',stage:7,pct:1,booking:177565,nsFY26:128079.67,nsFY27:49485.33,sales:'Javier Noguero',presales:'Albert Cabestany',sponsor:'Alejandro Zafra',acciones:'20260409 Albert programará el lunes en Jira\n20260318 Confirmado ganado, pendiente ok por escrito\n20260225 Propuesta enviada F1 80-110k y F2 70-90k'},
+  {id:7,cliente:"L'Energetica",geo:'BCN',area:'CC',workstream:'ERP - F&O',opp:'Implantación F&O_1',stage:6,pct:1,booking:385016.91,nsFY26:33867.23,nsFY27:351149.68,sales:'Javier Noguero',presales:'Albert Cabestany',sponsor:'Santiago Fernández',acciones:'20260520 Confirmada adjudicación por Marta Bricall\n20260427 Certificaciones entregadas, 15 días para adjudicación definitiva\n20260226 Propuesta entregada, precio 823k'},
+  {id:8,cliente:'Allfunds',geo:'MAD',area:'FS',workstream:'ERP - F&O',opp:'Mantenimiento Jul-Dic + 2 años',stage:6,pct:0.99,booking:675985.5,nsFY26:0,nsFY27:262750.55,sales:'Marcos Moreno',presales:'Ignacio de Loyola',sponsor:'Javier Gonzalez Perandones',acciones:'20260409 ACCIÓN: Defensa semana que viene\n20260318 Propuesta entregada\n20260226 Nos llega RFP'},
+  {id:9,cliente:'Boluda',geo:'MAD',area:'CC',workstream:'Other - PP/ESG',opp:'Mantenimiento Power Query',stage:6,pct:1,booking:5000,nsFY26:0,nsFY27:5000,sales:'Marcos Moreno',presales:'Francisco Salas',sponsor:'Alejandro Zafra',acciones:'20260305 Nos hacen traspaso del servicio de PowerQuery'},
+  {id:10,cliente:'Indukern',geo:'BCN',area:'CC',workstream:'D&A - Agentic AI',opp:'Levantamiento Agentes Copilot',stage:6,pct:1,booking:17022.94,nsFY26:0,nsFY27:17022.94,sales:'Marcos Moreno',presales:'Marcos Moreno',sponsor:'Antonio Bustamante',acciones:'20260410 ACCIÓN: Reunión convocada para semana que viene\n20260213 Cliente confirma que la mueve para ok interno'},
+  {id:11,cliente:'La Liga',geo:'MAD',area:'CC',workstream:'ERP - BC',opp:'Bolsa de horas BC',stage:6,pct:0.99,booking:8000,nsFY26:2028.17,nsFY27:5971.83,sales:'Marcos Moreno',presales:'Antonio Blázquez',sponsor:'',acciones:'20260422 Antonio envía propuesta para firma\n20260409 Ok por escrito del cliente'},
+  {id:12,cliente:"L'Energetica",geo:'BCN',area:'CC',workstream:'ERP - F&O',opp:'Implantación F&O_2',stage:6,pct:1,booking:385016.91,nsFY26:33867.23,nsFY27:351149.68,sales:'Marcos Moreno',presales:'Albert Cabestany',sponsor:'Santiago Fernández',acciones:'20260520 Confirmada adjudicación por Marta Bricall\n20260409 ACCIÓN: Esperar confirmación definitiva'},
+  {id:13,cliente:'Verisure',geo:'MAD',area:'CC',workstream:'D&A - Agentic AI',opp:'Copilot - Soporte',stage:6,pct:1,booking:40000,nsFY26:3618.09,nsFY27:36381.91,sales:'Marcos Moreno',presales:'Marcos Moreno',sponsor:'Alejandro Zafra',acciones:'20260410 ACCIÓN: Conversación semana que viene\n20260319 Defensa hecha y enfoque entregado\n20260303 Nos lo cuentan en el AI Tour Madrid'},
+  {id:14,cliente:'Mutualidad',geo:'MAD',area:'FS',workstream:'ERP - F&O',opp:'Contrato Mantenimiento F&O 2026',stage:7,pct:0.99,booking:230000,nsFY26:100256.41,nsFY27:129743.59,sales:'Ricardo Romero',presales:'Albert Cabestany',sponsor:'Iván Fdez. Collado',acciones:'20260409 Albert programará el lunes en Jira\n20260327 Ok por escrito, Early Start abierto\n20260326 Cerrando parte contractual'},
+  {id:15,cliente:'Noatum',geo:'BCN',area:'CC',workstream:'CRM',opp:'Renovación 2026 - Evolutivos',stage:6,pct:1,booking:44502,nsFY26:7152.11,nsFY27:37349.89,sales:'Marcos Moreno',presales:'Ana Frias',sponsor:'Virginia Souto',acciones:'20260211 Cliente nos lo ha pasado firmado, falta programar en Jira\n20251222 Nos piden ya firmada'},
+  {id:16,cliente:'Noatum',geo:'BCN',area:'CC',workstream:'CRM',opp:'Renovación 2026 - Oct a Dic',stage:7,pct:1,booking:19584,nsFY26:0,nsFY27:19584,sales:'Marcos Moreno',presales:'Ana Frias',sponsor:'Virginia Souto',acciones:'20260415 Se firmará con el de 69k\n20260225 Ampliarán 45k en bolsa de horas desde Junio'},
+  {id:17,cliente:'TKE',geo:'BCN',area:'CC',workstream:'ERP - BC',opp:'Soporte BC',stage:7,pct:1,booking:172000,nsFY26:120240.74,nsFY27:51759.26,sales:'Marcos Moreno',presales:'Ángel Carbonel',sponsor:'Virginia Souto',acciones:'20260225 Pdte. de DPO e Iván Melis\n20260211 Trabajando con Early Start\n20260114 Ángel confirma planificado en Jira'},
+];
+
+function load(){
+  try{
+    const s=localStorage.getItem(STORAGE_KEY);
+    if(s){const d=JSON.parse(s);if(d&&d.length)return d;}
+  }catch(e){}
+  save(SEED);
+  return SEED.map(o=>({...o}));
+}
+
+function save(data){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){}
+}
+
+let data=load();
+let nextId=data.reduce((m,o)=>Math.max(m,o.id),0)+1;
+
+function fmt(n){return n==null||n===''?'—':'€'+Math.round(n).toLocaleString('es-ES')}
+function stageLabel(s){return s===7?'Ganada':s===6?'Avanzada':s===5?'Propuesta':s===4?'Cualificada':'Stage '+s}
+function stageCls(s){return s===7?'s7':s===6?'s6':s===5?'s5':'s4'}
+
+function renderKPIs(){
+  const vis=filtered();
+  const totalBooking=vis.reduce((s,o)=>s+o.booking,0);
+  const totalFY27=vis.reduce((s,o)=>s+o.nsFY27,0);
+  const ganadas=vis.filter(o=>o.stage===7).length;
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="label">Booking total</div><div class="value accent">${fmt(totalBooking)}</div></div>
+    <div class="kpi"><div class="label">Net Sales FY27</div><div class="value accent">${fmt(totalFY27)}</div></div>
+    <div class="kpi"><div class="label">Oportunidades</div><div class="value">${vis.length}</div></div>
+    <div class="kpi"><div class="label">Ganadas</div><div class="value">${ganadas}</div></div>
+  `;
+}
+
+function filtered(){
+  const q=(document.getElementById('fSearch')||{value:''}).value.toLowerCase();
+  const stage=(document.getElementById('fStage')||{value:''}).value;
+  const owner=(document.getElementById('fOwner')||{value:''}).value;
+  const work=(document.getElementById('fWork')||{value:''}).value;
+  return data.filter(o=>{
+    if(q&&!o.cliente.toLowerCase().includes(q)&&!o.opp.toLowerCase().includes(q))return false;
+    if(stage&&String(o.stage)!==stage)return false;
+    if(owner&&o.sales!==owner)return false;
+    if(work&&o.workstream!==work)return false;
+    return true;
+  });
+}
+
+function populateFilters(){
+  const owners=[...new Set(data.map(o=>o.sales))].sort();
+  const works=[...new Set(data.map(o=>o.workstream))].sort();
+  const fO=document.getElementById('fOwner');
+  const curO=fO.value;
+  fO.innerHTML='<option value="">Todos los owners</option>'+owners.map(o=>`<option value="${o}">${o}</option>`).join('');
+  fO.value=curO;
+  const fW=document.getElementById('fWork');
+  const curW=fW.value;
+  fW.innerHTML='<option value="">Todos los workstreams</option>'+works.map(w=>`<option value="${w}">${w}</option>`).join('');
+  fW.value=curW;
+}
+
+function render(){
+  populateFilters();
+  renderKPIs();
+  const rows=filtered();
+  const tbody=document.getElementById('tbody');
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="7" class="empty">Sin oportunidades que coincidan con los filtros</td></tr>';return;}
+  tbody.innerHTML=rows.map(o=>`
+    <tr onclick="openDetail(${o.id})">
+      <td title="${o.cliente}">${o.cliente}</td>
+      <td title="${o.opp}">${o.opp}</td>
+      <td title="${o.workstream}">${o.workstream}</td>
+      <td><span class="stage-badge ${stageCls(o.stage)}">${stageLabel(o.stage)}</span></td>
+      <td>${fmt(o.booking)}</td>
+      <td>${fmt(o.nsFY27)}</td>
+      <td title="${o.sales}">${o.sales}</td>
+    </tr>
+  `).join('');
+}
+
+function openDetail(id){
+  const o=data.find(x=>x.id===id);
+  if(!o)return;
+  showPanel(`
+    <div class="panel-header">
+      <div><div class="panel-title">${o.opp}</div><div class="panel-sub">${o.cliente} · ${o.geo} · ${o.area}</div></div>
+      <button class="btn-close" onclick="closePanel()"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field"><label>Stage</label><span><span class="stage-badge ${stageCls(o.stage)}">${stageLabel(o.stage)}</span></span></div>
+      <div class="detail-field"><label>% Oportunidad</label><span>${Math.round(o.pct*100)}%</span></div>
+      <div class="detail-field"><label>Booking</label><span>${fmt(o.booking)}</span></div>
+      <div class="detail-field"><label>Net Sales FY27</label><span>${fmt(o.nsFY27)}</span></div>
+      <div class="detail-field"><label>Net Sales FY26</label><span>${fmt(o.nsFY26)}</span></div>
+      <div class="detail-field"><label>Workstream</label><span>${o.workstream}</span></div>
+      <div class="detail-field"><label>Sales owner</label><span>${o.sales}</span></div>
+      <div class="detail-field"><label>Presales</label><span>${o.presales||'—'}</span></div>
+      <div class="detail-field"><label>Sponsor / EL</label><span>${o.sponsor||'—'}</span></div>
+    </div>
+    <div class="section-label">Historial de acciones</div>
+    <div class="acciones">${o.acciones||'Sin acciones registradas'}</div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="openEdit(${o.id})"><i class="ti ti-edit" aria-hidden="true"></i> Editar</button>
+      <button class="btn-del" onclick="deleteOpp(${o.id})"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar</button>
+    </div>
+  `);
+}
+
+function openEdit(id){
+  const o=id?data.find(x=>x.id===id):{id:null,cliente:'',geo:'MAD',area:'CC',workstream:'ERP - F&O',opp:'',stage:6,pct:1,booking:0,nsFY26:0,nsFY27:0,sales:'Marcos Moreno',presales:'',sponsor:'',acciones:''};
+  const stages=[4,5,6,7].map(s=>`<option value="${s}" ${o.stage===s?'selected':''}>${stageLabel(s)}</option>`).join('');
+  showPanel(`
+    <div class="panel-header">
+      <div class="panel-title">${id?'Editar oportunidad':'Nueva oportunidad'}</div>
+      <button class="btn-close" onclick="${id?'openDetail('+id+')':'closePanel()'}"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="edit-grid">
+      <div class="form-field"><label>Cliente</label><input id="e_cliente" value="${o.cliente}"></div>
+      <div class="form-field"><label>Geografía</label><select id="e_geo"><option ${o.geo==='MAD'?'selected':''}>MAD</option><option ${o.geo==='BCN'?'selected':''}>BCN</option><option ${o.geo==='VAL'?'selected':''}>VAL</option></select></div>
+      <div class="form-field full"><label>Oportunidad / descripción</label><input id="e_opp" value="${o.opp}"></div>
+      <div class="form-field"><label>Workstream</label><select id="e_work">
+        ${['ERP - F&O','ERP - BC','CRM','D&A - Agentic AI','Other - PP/ESG'].map(w=>`<option ${o.workstream===w?'selected':''}>${w}</option>`).join('')}
+      </select></div>
+      <div class="form-field"><label>Área KPMG</label><select id="e_area"><option ${o.area==='CC'?'selected':''}>CC</option><option ${o.area==='FS'?'selected':''}>FS</option></select></div>
+      <div class="form-field"><label>Stage</label><select id="e_stage">${stages}</select></div>
+      <div class="form-field"><label>% Oportunidad</label><input id="e_pct" type="number" min="0" max="1" step="0.01" value="${o.pct}"></div>
+      <div class="form-field"><label>Booking (€)</label><input id="e_booking" type="number" value="${o.booking}"></div>
+      <div class="form-field"><label>Net Sales FY26 (€)</label><input id="e_ns26" type="number" value="${o.nsFY26}"></div>
+      <div class="form-field"><label>Net Sales FY27 (€)</label><input id="e_ns27" type="number" value="${o.nsFY27}"></div>
+      <div class="form-field"><label>Sales owner</label><input id="e_sales" value="${o.sales}"></div>
+      <div class="form-field"><label>Presales</label><input id="e_presales" value="${o.presales}"></div>
+      <div class="form-field full"><label>Sponsor / EL</label><input id="e_sponsor" value="${o.sponsor}"></div>
+      <div class="form-field full"><label>Historial de acciones</label><textarea id="e_acciones" rows="5" style="resize:vertical">${o.acciones}</textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="${id?'openDetail('+id+')':'closePanel()'}"}>Cancelar</button>
+      <button class="btn-save" onclick="saveOpp(${id||'null'})">Guardar</button>
+    </div>
+  `);
+}
+
+function saveOpp(id){
+  const vals={
+    cliente:document.getElementById('e_cliente').value.trim(),
+    geo:document.getElementById('e_geo').value,
+    area:document.getElementById('e_area').value,
+    workstream:document.getElementById('e_work').value,
+    opp:document.getElementById('e_opp').value.trim(),
+    stage:parseInt(document.getElementById('e_stage').value),
+    pct:parseFloat(document.getElementById('e_pct').value)||0,
+    booking:parseFloat(document.getElementById('e_booking').value)||0,
+    nsFY26:parseFloat(document.getElementById('e_ns26').value)||0,
+    nsFY27:parseFloat(document.getElementById('e_ns27').value)||0,
+    sales:document.getElementById('e_sales').value.trim(),
+    presales:document.getElementById('e_presales').value.trim(),
+    sponsor:document.getElementById('e_sponsor').value.trim(),
+    acciones:document.getElementById('e_acciones').value.trim(),
+  };
+  if(!vals.cliente||!vals.opp){alert('Cliente y oportunidad son obligatorios');return;}
+  if(id){
+    const idx=data.findIndex(o=>o.id===id);
+    if(idx>=0)data[idx]={...data[idx],...vals};
+  }else{
+    vals.id=nextId++;
+    data.push(vals);
+  }
+  save(data);
+  closePanel();
+  render();
+}
+
+function deleteOpp(id){
+  if(!confirm('¿Eliminar esta oportunidad?'))return;
+  data=data.filter(o=>o.id!==id);
+  save(data);
+  closePanel();
+  render();
+}
+
+function openNew(){openEdit(null);}
+
+function showPanel(html){
+  const p=document.getElementById('panel');
+  p.style.display='block';
+  p.innerHTML=`<div class="panel-overlay" onclick="if(event.target===this)closePanel()"><div class="panel">${html}</div></div>`;
+}
+
+function closePanel(){
+  const p=document.getElementById('panel');
+  p.style.display='none';
+  p.innerHTML='';
+}
+
+render();
+</script>
